@@ -3,6 +3,9 @@ import time
 import csv
 import datetime
 import argparse
+import os
+import sys
+import logging
 
 # Parse command line arguments
 parser = argparse.ArgumentParser(description='Baram - Advanced System Cooling Management Tool')
@@ -116,6 +119,8 @@ while True:
     elif high_temp_reached and gpu_temp <= 76 - TEMP_DROP:
         high_temp_reached = False
         oscillation_count = 0
+    else:
+        oscillation_count = 0
 
     pwm_value = MIN_PWM
     for i in range(len(TEMP_THRESHOLDS)):
@@ -137,5 +142,6 @@ while True:
 
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d-%H:%M:%S")
     log_data([timestamp, gpu_temp, fan_speed, pwm_value, gpu_power])
+    logging.debug(f"Timestamp: {timestamp}, GPU Temp: {gpu_temp}, Fan Speed: {fan_speed}, PWM Value: {pwm_value}, GPU Power: {gpu_power}")
 
     time.sleep(2)
