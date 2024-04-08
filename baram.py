@@ -17,6 +17,8 @@ parser.add_argument('--pwm-step', type=int, default=5, help='The PWM value that 
 parser.add_argument('--temp-drop', type=int, default=3, help='Temperature drop threshold for fan speed reduction (default: 3)')
 parser.add_argument('--log-file', type=str, default="/var/log/baram/debug.log", help='Path to the script log file (default: /var/log/baram/debug.log)')
 parser.add_argument('--data-log-file', type=str, default="/var/log/baram/baram.out", help='Path to the data output log file (default: /var/log/baram/baram.out)')
+parser.add_argument('--max-pwm-below-65', type=str, default=50, help='Max Fan speed when temp is below 65C (default: 125)')
+
 args = parser.parse_args()
 
 # Setup logging
@@ -43,7 +45,10 @@ FAN_SPEED_FILE = "/sys/class/hwmon/hwmon2/fan1_input"  # Adjust based on your sy
 PWM_ENABLE_FILE = "/sys/class/hwmon/hwmon2/pwm1_enable" # Adjust based on your system
 
 # Log file
-LOG_FILE = "/var/log/gpu_temp.log"
+LOG_FILE = "/var/log/baram/baram.out"
+
+# Define the maximum PWM value for temperatures below 65°C
+MAX_PWM_BELOW_65 = 125  # Or whatever value you deem appropriate
 
 # Variables for tracking temperature oscillation
 oscillation_count = 0
@@ -139,7 +144,7 @@ while True:
     if gpu_temp < 65:
         pwm_value = min(pwm_value, MAX_PWM_BELOW_65)
 
-    if fan_speed > MAX_PWM_Value:
+    if fan_speed > MAX_PWM:
         pwm_value = max(PWM_RANGES[-2][0], pwm_value)
 
     set_pwm_value(pwm_value)
