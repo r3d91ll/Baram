@@ -9,9 +9,11 @@ import logging
 
 # Parse command line arguments
 parser = argparse.ArgumentParser(description='Baram - Advanced System Cooling Management Tool')
-parser.add_argument('--min-temp', type=int, default=50, help='Minimum temperature threshold (default: 50)')
+parser.add_argument('--min-temp', type=int, default=30, help='Minimum temperature threshold (default: 30)')
 parser.add_argument('--max-temp', type=int, default=80, help='Maximum temperature threshold (default: 80)')
-parser.add_argument('--max-fan-speed', type=int, default=12000, help='Maximum fan speed (default: 12000)')
+parser.add_argument('--min-pwm-value', type=int, default=0, help='Maximum PWM Value for fan speed 0-255 value (default: 0)')
+parser.add_argument('--max-pwm-value', type=int, default=255, help='Maximum PWM Value for fan speed 0-255 value (default: 255)')
+parser.add_argument('--pwm-step', type=int, default=5, help='The PWM value that defines how much baram increses or decreases speeds 0-255 value (default: 5)')
 parser.add_argument('--temp-drop', type=int, default=3, help='Temperature drop threshold for fan speed reduction (default: 3)')
 args = parser.parse_args()
 
@@ -24,9 +26,7 @@ MAX_PWM_BELOW_65 = 200
 # Define thresholds for temperature
 MIN_TEMP = args.min_temp
 MAX_TEMP = args.max_temp
-
-# Define maximum fan speed
-MAX_FAN_SPEED = args.max_fan_speed
+MAX_PWM_Value  = args.max_pwm
 
 # Define temperature drop threshold for fan speed reduction
 TEMP_DROP = args.temp_drop
@@ -36,7 +36,7 @@ MIN_PWM = 80
 MAX_PWM = 255
 
 # Define thresholds for temperature and corresponding PWM values
-TEMP_THRESHOLDS = [50, 60, 70, 72, 76]
+TEMP_THRESHOLDS = [50, 60, 70, 72, 76 MAX_TEMP]
 PWM_RANGES = [(80, 80), (80, 100), (100, 150), (150, 200), (200, MAX_PWM), (MAX_PWM, MAX_PWM)]
 
 # PWM control file and fan speed file
@@ -142,7 +142,7 @@ while True:
     if gpu_temp < 65:
         pwm_value = min(pwm_value, MAX_PWM_BELOW_65)
 
-    if fan_speed > MAX_FAN_SPEED:
+    if fan_speed > MAX_PWM_Value:
         pwm_value = max(PWM_RANGES[-2][0], pwm_value)
 
     set_pwm_value(pwm_value)
