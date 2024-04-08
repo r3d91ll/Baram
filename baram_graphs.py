@@ -11,7 +11,7 @@ data['date'] = pd.to_datetime(data['date'])
 fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 10), sharex=True)
 
 # Plot GPU temperature and power
-ax1.plot(data['date'].to_numpy(), data['cpu_temp'].to_numpy(), label='GPU Temperature (°C)', color='red')
+ax1.plot(data['date'].to_numpy(), data['gpu_temp'].to_numpy(), label='GPU Temperature (°C)', color='red')
 ax1.set_ylabel('Temperature (°C)', color='red')
 ax1.tick_params(axis='y', labelcolor='red')
 
