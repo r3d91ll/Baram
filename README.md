@@ -1,12 +1,14 @@
 # Baram: Advanced System Cooling Management Tool
 
+A Linux utility to manage fans mounted on Tesla Datacenter GPUs mounted in ATX case. Named after the Korean word for wind and movement.
+
 ## Overview
 
-Baram is a pioneering cooling management tool designed for enthusiasts repurposing Nvidia data center GPUs in ATX-like cases, and now extending its functionality to comprehensive system fan control. By optimizing the cooling for both the high-performance GPUs and the overall system, Baram aims to enhance thermal performance, extend component longevity, and reduce noise. Tailored for Linux systems, Baram offers a CLI-based interface that appeals to both seasoned enthusiasts and users new to custom thermal management.
+Baram is a cooling management tool designed for enthusiasts repurposing Nvidia data center GPUs in ATX-like cases. By optimizing the cooling for both the high-performance GPUs and the overall system, Baram aims to enhance thermal performance, extend component longevity, and reduce noise. Tailored for Linux systems, Baram offers a CLI-based interface that appeals to both seasoned enthusiasts and users new to custom thermal management.
 
 ## Mission
 
-Our mission with Baram is to facilitate a new beginning for used data center GPUs by providing a sophisticated, yet accessible, cooling management tool. Baram extends its utility beyond the GPU, offering system-wide fan control to harmonize cooling efficiency and acoustic performance across the entire system.
+Our mission with Baram is to facilitate a new beginning for used data center GPUs by providing a sophisticated, yet accessible, cooling management tool. 
 
 ## Key Features
 

@@ -1,10 +1,12 @@
 **Hardware Requirements:**
+
 - Asus Rog Strix B550-XE Gaming WiFi motherboard
 - Nvidia P40 GPU
 - 3D printed fan shroud for the P40 GPU (available on eBay: [https://www.ebay.com/itm/155965387407](https://www.ebay.com/itm/155965387407))
 - 2x 15k Blower fans (available on Amazon: [https://www.amazon.com/gp/product/B09SB3Z6ND](https://www.amazon.com/gp/product/B09SB3Z6ND))
 
 **Software Requirements:**
+
 - Linux operating system
 - Nvidia driver and nvidia-smi utility
 
