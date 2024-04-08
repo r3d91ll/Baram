@@ -1,50 +1,118 @@
 # Baram: Advanced System Cooling Management Tool
 
-A Linux utility to manage fans mounted on Tesla Datacenter GPUs mounted in ATX case. Named after the Korean word for wind and movement.
+A Linux utility designed to manage fans on Tesla Datacenter GPUs mounted in ATX cases. Named after the Korean word for wind, Baram provides an intuitive, CLI-based interface for optimizing cooling performance and noise management in Linux systems.
 
 ## Overview
 
-Baram is a cooling management tool designed for enthusiasts repurposing Nvidia data center GPUs in ATX-like cases. By optimizing the cooling for both the high-performance GPUs and the overall system, Baram aims to enhance thermal performance, extend component longevity, and reduce noise. Tailored for Linux systems, Baram offers a CLI-based interface that appeals to both seasoned enthusiasts and users new to custom thermal management.
+Baram is a specialized cooling management tool developed for Nvidia data center GPUs repurposed in ATX-like cases. It enhances thermal performance, extends component longevity, and minimizes noise, making it ideal for enthusiasts and newcomers alike.
 
 ## Mission
 
-Our mission with Baram is to facilitate a new beginning for used data center GPUs by providing a sophisticated, yet accessible, cooling management tool. 
+Our mission is to empower users to revitalize used data center GPUs with an advanced, accessible cooling management solution.
 
 ## Key Features
 
-### Stage 1: Profile Management and Dynamic Temperature Logic
+### Stage 1: Initial Release
 
-- **Profile Management**: Create, save, and switch between cooling profiles for different use cases or system states.
-- **Dynamic Temperature Monitoring**: Implement adaptive fan control based on real-time GPU and system temperatures.
+- **Profile Management**: Users can create, save, and switch between multiple cooling profiles.
+- **Dynamic Temperature Monitoring**: Adaptive fan control is based on real-time GPU and system temperatures.
 
-### Stage 2: Comprehensive Fan Identification and Logic Expansion
+### Stage 2: Logic Enhancement
 
-- **System-Wide Fan Identification**: Easily identify and configure GPU, CPU, and chassis fans, facilitating a unified cooling strategy.
-- **Enhanced Temperature Logic**: Further refine temperature monitoring and fan control algorithms, incorporating feedback and comprehensive system considerations.
+- **System-Wide Fan Identification**: Configures GPU, CPU, and chassis fans for a unified cooling strategy.
+- **Enhanced Temperature Logic**: Improves temperature monitoring and fan control algorithms.
 
-### Stage 3: Airflow Optimization and Noise Management
+### Stage 3: Optimization
 
-- **Airflow Optimization Profiles**: Develop profiles that optimize the balance between intake and exhaust, improving cooling efficiency and reducing noise.
-- **Noise Optimization Mode**: Introduce a specific mode aimed at minimizing operational noise while maintaining effective cooling, ideal for work or low-noise environments.
+- **Airflow Optimization Profiles**: Balances intake and exhaust to improve cooling and reduce noise.
+- **Noise Optimization Mode**: Minimizes noise while maintaining effective cooling.
 
-### Stage 4: Data Visualization and Real-time Monitoring
+### Stage 4: Data Visualization and Monitoring
 
-- **Historical Data Graphing**: Generate graphs from historical log data to visualize the cooling performance and system temperatures over time.
-- **Live Graphing**: Implement real-time graphing of temperature and fan speeds during stress tests or normal operations, providing immediate visual feedback.
+- **Historical Data Graphing**: Users can generate graphs from historical data for cooling performance over time.
+- **Live Graphing**: Real-time graphing of temperature and fan speeds for immediate feedback. This will be implemented with the `baram_graphs.py` script.
+
+## Roadmap
+
+- **Graphing Function Integration**: The next major feature will be the addition of graphing functionalities through `baram_graphs.py`, which will handle both historical data visualization and real-time monitoring graphing.
 
 ## Getting Started
 
-(Instructions on installation, initial setup, and basic usage. This section will include details on how to download Baram, configure it for the first setup, and execute basic commands for temperature monitoring and manual fan control.)
+### Installation
+
+1. Ensure Python3 and Pip are installed on your system.
+2. Install the required Python libraries:
+
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+### Running Baram
+
+Execute the following command to start Baram:
+
+```bash
+python baram.py
+```
+
+### Creating a Service for Ubuntu
+
+To ensure Baram runs as a service on Ubuntu, follow these steps:
+
+1. Create a systemd service file:
+
+    ```bash
+    sudo nano /etc/systemd/system/baram.service
+    ```
+
+2. Add the following configuration, modifying the `ExecStart` path as necessary:
+
+    ```ini
+    [Unit]
+    Description=Baram Cooling Management Service
+    After=network.target
+
+    [Service]
+    Type=simple
+    User=your_user
+    ExecStart=/usr/bin/python3 /path/to/baram.py
+
+    [Install]
+    WantedBy=multi-user.target
+    ```
+
+3. Enable and start the Baram service:
+
+    ```bash
+    sudo systemctl enable baram.service
+    sudo systemctl start baram.service
+    ```
+
+4. Check the service status with:
+
+    ```bash
+    sudo systemctl status baram.service
+    ```
+
+### Usage
+
+- To view available commands, use:
+
+    ```bash
+    python baram.py --help
+    ```
+
+- For creating and managing profiles, consult the Baram documentation or the help command output.
 
 ## Contributing
 
-Contributions are welcome! Whether you're interested in coding, designing the UI, or sharing cooling profiles, there's a place for you in Baram's community. See our contributing guidelines for more details on how to get involved.
+We welcome contributions of all kinds, from code to documentation, from all members of the community. Please see our contributing guidelines for more information on how to get involved.
 
 ## License
 
-(Details about the project's license, ensuring users and contributors understand the permissions and restrictions associated with Baram's use and distribution.)
+Details about the project's license are included here, outlining the permissions and restrictions for using and distributing Baram.
 
 ## Acknowledgments
 
-(Recognition of contributions from the community, any third-party resources used, and inspirational sources that have shaped Baram.)
+Our heartfelt thanks to the community, especially those who have contributed code, feedback, and support to the project.
 
