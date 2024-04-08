@@ -11,32 +11,29 @@ import logging
 parser = argparse.ArgumentParser(description='Baram - Advanced System Cooling Management Tool')
 parser.add_argument('--min-temp', type=int, default=30, help='Minimum temperature threshold (default: 30)')
 parser.add_argument('--max-temp', type=int, default=80, help='Maximum temperature threshold (default: 80)')
-parser.add_argument('--min-pwm-value', type=int, default=0, help='Maximum PWM Value for fan speed 0-255 value (default: 0)')
+parser.add_argument('--min-pwm-value', type=int, default=0, help='Minimum PWM Value for fan speed 0-255 value (default: 0)')
 parser.add_argument('--max-pwm-value', type=int, default=255, help='Maximum PWM Value for fan speed 0-255 value (default: 255)')
-parser.add_argument('--pwm-step', type=int, default=5, help='The PWM value that defines how much baram increses or decreases speeds 0-255 value (default: 5)')
+parser.add_argument('--pwm-step', type=int, default=5, help='The PWM value that defines how much baram increases or decreases speeds 0-255 value (default: 5)')
 parser.add_argument('--temp-drop', type=int, default=3, help='Temperature drop threshold for fan speed reduction (default: 3)')
+parser.add_argument('--log-file', type=str, default="/var/log/baram/debug.log", help='Path to the script log file (default: /var/log/baram/debug.log)')
+parser.add_argument('--data-log-file', type=str, default="/var/log/baram/baram.out", help='Path to the data output log file (default: /var/log/baram/baram.out)')
 args = parser.parse_args()
 
-TEMP_THRESHOLDS = [50, 60, 65, MAX_TEMP]
-PWM_RANGES = [(80, 80), (80, 100), (100, 150), (150, MAX_PWM)]
+# Setup logging
+logging.basicConfig(filename=args.log_file, level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+def log_data(data):
+    with open(args.data_log_file, "a") as file:
+        writer = csv.writer(file)
+        writer.writerow(data)
 
-# Define the maximum PWM value for temperatures below 65°C
-MAX_PWM_BELOW_65 = 200
-
-# Define thresholds for temperature
+# Correcting the variable name and typo in the TEMP_THRESHOLDS list
 MIN_TEMP = args.min_temp
 MAX_TEMP = args.max_temp
-MAX_PWM_Value  = args.max_pwm
+MIN_PWM = args.min_pwm_value  # Updated to reflect actual argparse option
+MAX_PWM = args.max_pwm_value  # This corrects the previous variable name mismatch
 
-# Define temperature drop threshold for fan speed reduction
-TEMP_DROP = args.temp_drop
-
-# Define PWM values
-MIN_PWM = 80
-MAX_PWM = 255
-
-# Define thresholds for temperature and corresponding PWM values
-TEMP_THRESHOLDS = [50, 60, 70, 72, 76 MAX_TEMP]
+# Define temperature and corresponding PWM values with corrected list syntax
+TEMP_THRESHOLDS = [50, 60, 70, 72, 76, MAX_TEMP]
 PWM_RANGES = [(80, 80), (80, 100), (100, 150), (150, 200), (200, MAX_PWM), (MAX_PWM, MAX_PWM)]
 
 # PWM control file and fan speed file
@@ -99,8 +96,8 @@ try:
     with open(PWM_ENABLE_FILE, "r") as file:
         current_mode = int(file.read().strip())
 except IOError as e:
-    print(f"Failed to read PWM control mode: {str(e)}")
-    current_mode = None
+    logging.error(f"Failed to read PWM control mode: {str(e)}")
+
 
 if current_mode != 1:
     set_pwm_control_mode(1)
