@@ -15,6 +15,12 @@ parser.add_argument('--max-fan-speed', type=int, default=12000, help='Maximum fa
 parser.add_argument('--temp-drop', type=int, default=3, help='Temperature drop threshold for fan speed reduction (default: 3)')
 args = parser.parse_args()
 
+TEMP_THRESHOLDS = [50, 60, 65, MAX_TEMP]
+PWM_RANGES = [(80, 80), (80, 100), (100, 150), (150, MAX_PWM)]
+
+# Define the maximum PWM value for temperatures below 65°C
+MAX_PWM_BELOW_65 = 200
+
 # Define thresholds for temperature
 MIN_TEMP = args.min_temp
 MAX_TEMP = args.max_temp
@@ -107,7 +113,7 @@ while True:
     gpu_power = get_gpu_power()
     fan_speed = get_fan_speed()
 
-    if gpu_temp >= 76:
+    if gpu_temp >= MAX_TEMP:
         high_temp_reached = True
         oscillation_count += 1
         current_time = time.time()
@@ -115,8 +121,8 @@ while True:
             last_oscillation_time = current_time
             oscillation_count = 1
         if oscillation_count >= oscillation_threshold:
-            gpu_temp = 76
-    elif high_temp_reached and gpu_temp <= 76 - TEMP_DROP:
+            gpu_temp = MAX_TEMP
+    elif high_temp_reached and gpu_temp <= MAX_TEMP - TEMP_DROP:
         high_temp_reached = False
         oscillation_count = 0
     else:
@@ -124,19 +130,20 @@ while True:
 
     pwm_value = MIN_PWM
     for i in range(len(TEMP_THRESHOLDS)):
-        if i == 0:
-            if gpu_temp <= TEMP_THRESHOLDS[i]:
+        if gpu_temp <= TEMP_THRESHOLDS[i]:
+            if i == 0:
                 pwm_value = PWM_RANGES[i][0]
-                break
-        else:
-            if TEMP_THRESHOLDS[i-1] < gpu_temp <= TEMP_THRESHOLDS[i]:
-                pwm_value = PWM_RANGES[i][0] + (gpu_temp - TEMP_THRESHOLDS[i-1]) * (PWM_RANGES[i][1] - PWM_RANGES[i][0]) // (TEMP_THRESHOLDS[i] - TEMP_THRESHOLDS[i-1])
-                break
+            else:
+                pwm_value = PWM_RANGES[i-1][0] + (gpu_temp - TEMP_THRESHOLDS[i-1]) * (PWM_RANGES[i][0] - PWM_RANGES[i-1][0]) // (TEMP_THRESHOLDS[i] - TEMP_THRESHOLDS[i-1])
+            break
     else:
         pwm_value = PWM_RANGES[-1][1]
 
+    if gpu_temp < 65:
+        pwm_value = min(pwm_value, MAX_PWM_BELOW_65)
+
     if fan_speed > MAX_FAN_SPEED:
-        pwm_value = PWM_RANGES[-2][1]  # Set PWM value to the second-to-last range
+        pwm_value = max(PWM_RANGES[-2][0], pwm_value)
 
     set_pwm_value(pwm_value)
 
