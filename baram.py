@@ -68,7 +68,7 @@ PWM_ENABLE_FILE = "/sys/class/hwmon/hwmon2/pwm1_enable"
 # Variables for tracking wattage spikes
 wattage_spike_start_time = None
 wattage_spike_detected = False
-wattage_spike_min_pwm = args.min_pwm_value
+wattage_pwm_value = args.min_pwm_value
 spike_count = 0
 last_spike_time = None
 
@@ -146,42 +146,43 @@ while True:
     current_time = time.time()
 
     if gpu_power >= args.wattage_threshold:
-        if last_spike_time is None or (current_time - last_spike_time) >= args.spike_interval:
+        if last_spike_time is None or (current_time - last_spike_time) >= args.spike_interval * args.sleep_interval:
             spike_count = 1
             last_spike_time = current_time
         else:
             spike_count += 1
             if spike_count >= args.spike_threshold:
                 wattage_spike_detected = True
-                wattage_spike_min_pwm = args.wattage_pwm_value
+                wattage_pwm_value = args.wattage_pwm_value
                 spike_count = 0
+                logging.debug(f"Wattage spike detected. Setting minimum PWM value to {wattage_pwm_value}.")
     else:
         last_spike_time = None
         spike_count = 0
         wattage_spike_detected = False
 
-    # If a wattage spike is detected, set the PWM value to the configured value
+    # If a wattage spike is detected, set the minimum PWM value to the configured value
     if wattage_spike_detected:
-        pwm_value = wattage_spike_min_pwm
-        logging.debug(f"Wattage spike detected for {args.wattage_spike_duration} seconds. Setting PWM value to {pwm_value}.")
+        pwm_value = max(pwm_value, wattage_pwm_value)
     else:
         # If a wattage spike has not adjusted the PWM value, proceed with temperature-based adjustments
         if gpu_temp < args.min_temp:
             pwm_value = args.min_pwm_value
         else:
             if gpu_temp < 65:
-                pwm_value = max(min(args.max_pwm_below_65, args.max_pwm_value), wattage_spike_min_pwm)
+                pwm_value = min(args.max_pwm_below_65, args.max_pwm_value)
             else:
                 for i in range(len(TEMP_THRESHOLDS)):
                     if gpu_temp <= TEMP_THRESHOLDS[i]:
-                        pwm_value = max(PWM_RANGES[i-1][1] + (gpu_temp - TEMP_THRESHOLDS[i-1]) * (PWM_RANGES[i][1] - PWM_RANGES[i-1][1]) // (TEMP_THRESHOLDS[i] - TEMP_THRESHOLDS[i-1]), wattage_spike_min_pwm)
+                        pwm_value = PWM_RANGES[i-1][1] + (gpu_temp - TEMP_THRESHOLDS[i-1]) * (PWM_RANGES[i][1] - PWM_RANGES[i-1][1]) // (TEMP_THRESHOLDS[i] - TEMP_THRESHOLDS[i-1])
                         break
                 else:
-                    pwm_value = max(PWM_RANGES[-1][1], wattage_spike_min_pwm)
+                    pwm_value = PWM_RANGES[-1][1]
 
     # Set the new PWM value
     current_pwm_value = get_current_pwm_value()
     if current_pwm_value is not None:
+        pwm_value = max(pwm_value, wattage_pwm_value)  # Ensure PWM value is not lower than wattage_pwm_value
         pwm_value = adjust_pwm_value(current_pwm_value, pwm_value, args.pwm_step)
         set_pwm_value(pwm_value)
 
