@@ -1,49 +1,90 @@
 import pandas as pd
 import matplotlib.pyplot as plt
+import time
+import os
+from io import StringIO
 
-# Read the test data from the CSV file
-data = pd.read_csv('testdata.txt')
+# Enable interactive mode for real-time graph updates
+plt.ion()
 
-# Convert the 'date' column to datetime format
-data['date'] = pd.to_datetime(data['date'])
+# Initialize the figure for plotting
+fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 8), sharex=True)
 
-# Create a figure with two subplots
-fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 10), sharex=True)
+# Path to the data file and config file
+data_file = '/var/log/baram/baram.out'
+config_path = '/etc/baram/baram.conf'
 
-# Plot GPU temperature and power
-ax1.plot(data['date'].to_numpy(), data['gpu_temp'].to_numpy(), label='GPU Temperature (°C)', color='red')
-ax1.set_ylabel('Temperature (°C)', color='red')
-ax1.tick_params(axis='y', labelcolor='red')
+# Function to read the sleep interval from the configuration file
+def read_sleep_interval(config_path):
+    with open(config_path, 'r') as file:
+        for line in file:
+            if line.startswith('sleep_interval'):
+                _, value = line.split('=')
+                return float(value.strip())
+    return 2  # Default value if not found
 
-ax1_twin = ax1.twinx()
-ax1_twin.plot(data['date'].to_numpy(), data['gpu_power'].to_numpy(), label='GPU Power (W)', color='green')
-ax1_twin.set_ylabel('Power (W)', color='green')
-ax1_twin.tick_params(axis='y', labelcolor='green')
+# Function to read new data from the log file
+def read_new_data(filepath, last_pos):
+    with open(filepath, 'r') as file:
+        # Move to the last read position
+        file.seek(last_pos)
+        # Read new data
+        new_data = file.read()
+        # Update the last read position
+        last_pos = file.tell()
+    # Return the new data and the updated position
+    return new_data, last_pos
 
-# Plot fan speed and PWM values
-ax2.plot(data['date'].to_numpy(), data['fan_speed'].to_numpy(), label='Fan Speed (RPM)', color='blue')
-ax2.set_ylabel('Fan Speed (RPM)', color='blue')
-ax2.tick_params(axis='y', labelcolor='blue')
+# Read the sleep interval from the configuration file
+sleep_interval = read_sleep_interval(config_path)
 
-ax2_twin = ax2.twinx()
-ax2_twin.plot(data['date'].to_numpy(), data['pwm_value'].to_numpy(), label='PWM Value', color='purple')
-ax2_twin.set_ylabel('PWM Value', color='purple')
-ax2_twin.tick_params(axis='y', labelcolor='purple')
+# Initialize the last read position
+last_pos = 0
 
-# Set labels and title
-ax1.set_title('GPU Temperature and Power')
-ax2.set_title('Fan Speed and PWM Value')
-ax2.set_xlabel('Time')
+# Set the y-axis limits and ticks for temperature and wattage
+temp_lim = (25, 100)
+temp_ticks = range(25, 101, 5)
+wattage_lim = (10, 300)
+wattage_ticks = range(10, 301, 20)
 
-# Add legends
-ax1.legend(loc='upper left')
-ax1_twin.legend(loc='upper right')
-ax2.legend(loc='upper left')
-ax2_twin.legend(loc='upper right')
+# Loop to update the graph with new data
+while True:
+    # Read new data
+    new_data, last_pos = read_new_data(data_file, last_pos)
 
-# Rotate x-axis labels for better readability
-plt.xticks(rotation=45)
+    # Check if there is new data
+    if new_data:
+        # Convert the new data to a DataFrame
+        new_df = pd.read_csv(StringIO(new_data), header=None, names=['date', 'gpu_temp', 'fan_speed', 'pwm_value', 'gpu_power'])
+        new_df['date'] = pd.to_datetime(new_df['date'], format='%Y-%m-%d-%H:%M:%S', errors='coerce')
+        new_df.dropna(subset=['date'], inplace=True)
 
-# Adjust layout and display the graph
-plt.tight_layout()
-plt.show()
+        # Update the GPU temperature plot
+        ax1.clear()
+        ax1.plot(new_df['date'], new_df['gpu_temp'], label='GPU Temperature')
+        ax1.legend(loc="upper left")
+        ax1.set_ylabel('Temperature (°C)')
+        ax1.set_ylim(temp_lim)
+        ax1.set_yticks(temp_ticks)
+
+        # Update the GPU power plot
+        ax2.clear()
+        ax2.plot(new_df['date'], new_df['gpu_power'], label='GPU Power')
+        ax2.legend(loc="upper left")
+        ax2.set_ylabel('Power (W)')
+        ax2.set_ylim(wattage_lim)
+        ax2.set_yticks(wattage_ticks)
+
+        # Set the x-axis label
+        ax2.set_xlabel('Time')
+
+        # Rotate x-axis labels for better readability
+        plt.xticks(rotation=45)
+
+        # Redraw the figure to update the graph
+        plt.tight_layout()
+        plt.draw()
+        plt.pause(0.1)  # Brief pause to allow the figure to update
+
+    # Sleep for the interval specified in the configuration file
+    time.sleep(sleep_interval)
