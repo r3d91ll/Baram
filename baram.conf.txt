@@ -24,7 +24,9 @@ wattage_threshold = 200
 wattage_spike_count = 3
 
 # PWM value to set when wattage spike conditions are met. This allows for aggressive cooling in response to sudden increases in power draw.
-wattage_pwm_value = 100
+wattage_pwm_value = 75
 
 # the interval of time script uses between temp checks
 sleep_interval = 2
+
+
