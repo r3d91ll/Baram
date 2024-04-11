@@ -165,6 +165,10 @@ while True:
     # Ensure PWM value is not lower than the actual minimum PWM value
     pwm_value = max(pwm_value, actual_min_pwm_value)
 
+    # Adjust PWM value based on wattage
+    if gpu_power < args.wattage_threshold and pwm_value > actual_min_pwm_value:
+        pwm_value = max(pwm_value - args.pwm_step, actual_min_pwm_value)
+
     # Set the new PWM value
     set_pwm_value(pwm_value)
 
