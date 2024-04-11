@@ -10,33 +10,31 @@ Baram is a specialized cooling management tool developed for Nvidia data center 
 
 The genesis of this tool was sparked by an incredible find on Ebay—an Nvidia P40 for $175, perfect for my burgeoning interest in machine learning. The snag came when I tried integrating this powerhouse into a non-server setup. Cooling it outside of its native server habitat proved daunting. While hardware adaptations were somewhat navigated by others, an intuitive method to regulate fan speed in response to the GPU's temperature or power consumption—especially within the confines of a consumer-grade motherboard—was conspicuously absent.
 
-This challenge morphed into an opportunity. My intial testing has shown that cooling a datacenter grade GPU within an ATX case is not feasible but can outperform the traditional server case scenario in both simplicity and acoustics. The strategic placement of the GPU's blower fans directly in front of the ATX case's intake fans facilitated a more effective cooling mechanism. Unlike in server cases, where the GPUs are relegated to the rear and subjected to pre-warmed air post-CPU cooling, my setup benefitted from a direct blast of fresh air. This not only enhanced cooling efficiency but also significantly reduced noise levels, making it a effective solution for enthusiasts venturing into machine learning with high-performance, datacenter-grade GPUs in consumer setups.
+This challenge morphed into an opportunity. My initial testing has shown that cooling a datacenter grade GPU within an ATX case is not only feasible but can outperform the traditional server case scenario in both simplicity and acoustics. The strategic placement of the GPU's blower fans directly in front of the ATX case's intake fans facilitated a more effective cooling mechanism. Unlike in server cases, where the GPUs are relegated to the rear and subjected to pre-warmed air post-CPU cooling, my setup benefitted from a direct blast of fresh air. This not only enhanced cooling efficiency but also significantly reduced noise levels, making it an effective solution for enthusiasts venturing into machine learning with high-performance, datacenter-grade GPUs in consumer setups.
 
 ## Current State
 
-Please note that the current version of baram.py uses nvidia-smi for logging data. We are actively working on a new version that will utilize NVLM (NVIDIA Management Library) for improved performance and compatibility. Stay tuned for updates!
+Baram.py is currently functional and uses NVML (NVIDIA Management Library) for retrieving GPU information. The baram_graphs.py script, which provides real-time graphing capabilities, is currently under development and has been moved to a separate branch.
+
+## Requirements
+
+The current version of Baram has the following Python dependencies:
+
+- pandas
+- matplotlib
+- pynvml
+
+These dependencies are listed in the `requirements.txt` file. To install them, run:
+
+```bash
+pip install -r requirements.txt
+```
 
 ## Key Features
 
-### Stage 1: Initial Release
-
-- **Profile Management**: Users can create, save, and switch between multiple cooling profiles.
-- **Dynamic Temperature Monitoring**: Adaptive fan control is based on real-time GPU and system temperatures.
-
-### Stage 2: Logic Enhancement
-
-- **System-Wide Fan Identification**: Configures GPU, CPU, and chassis fans for a unified cooling strategy.
-- **Enhanced Temperature Logic**: Improves temperature monitoring and fan control algorithms.
-
-### Stage 3: Optimization
-
-- **Airflow Optimization Profiles**: Balances intake and exhaust to improve cooling and reduce noise.
-- **Noise Optimization Mode**: Minimizes noise while maintaining effective cooling.
-
-### Stage 4: Data Visualization and Monitoring
-
-- **Historical Data Graphing**: Users can generate graphs from historical data for cooling performance over time.
-- **Live Graphing**: Real-time graphing of temperature and fan speeds for immediate feedback. This will be implemented with the `baram_graphs.py` script.
+- **Dynamic Temperature and Power Monitoring**: Adaptive fan control based on real-time GPU temperature and power consumption.
+- **Configurable Thresholds**: Customizable temperature and power thresholds for fine-tuned cooling performance.
+- **Logging**: Detailed logging of GPU temperature, fan speed, PWM values, and power consumption for analysis and troubleshooting.
 
 ## Getting Started
 
@@ -48,10 +46,6 @@ Please note that the current version of baram.py uses nvidia-smi for logging dat
     ```bash
     pip install -r requirements.txt
     ```
-3. The current version of Baram has the following Python dependencies:
-
-    - pandas
-    - matplotlib
 
 ### Running Baram
 
@@ -119,13 +113,9 @@ To ensure Baram runs as a service on Ubuntu, follow these steps:
 
 For load testing the GPU, we recommend using gpu_burn, which can be found here: [gpu_burn](https://github.com/wilicc/gpu-burn)
 
-## Note on ASCII Art Graphing
-
-We have chosen to use ASCII art for displaying graphs in the CLI to avoid potential interference with GPU testing. Using a GUI could skew the results, so the CLI approach leverages the CPU for graph rendering, ensuring accurate test results.
-
 ## Compatibility Note
 
-It's important to recognize that each chipset is unique, which means that both the access points for fan control interfaces and the module names within the Linux operating system can vary significantly across different motherboards. Specifically, compatibility with the 'Baram' has been verified for the Asus Rog Strix B550xe motherboard, which utilizes an AMD chipset. However, given the vast diversity of hardware configurations and specific edge cases, we cannot assure universal compatibility. We recommend consulting your motherboard's documentation or seeking community support for configurations not explicitly mentioned.
+It's important to recognize that each chipset is unique, which means that both the access points for fan control interfaces and the module names within the Linux operating system can vary significantly across different motherboards. Specifically, compatibility with 'Baram' has been verified for the Asus Rog Strix B550xe motherboard, which utilizes an AMD chipset. However, given the vast diversity of hardware configurations and specific edge cases, we cannot assure universal compatibility. We recommend consulting your motherboard's documentation or seeking community support for configurations not explicitly mentioned.
 
 ## Contributing
 
@@ -134,14 +124,3 @@ We welcome contributions of all kinds, from code to documentation, from all memb
 ## License
 
 Details about the project's license are included here, outlining the permissions and restrictions for using and distributing Baram.
-
-## Acknowledgments
-
-Our heartfelt thanks to the community, especially those who have contributed code, feedback, and support to the project.
-
-## Roadmap
-
-1. Update the README.md with additional details and notes.
-2. Refactor baram.py to use NVLM (NVIDIA Management Library) instead of nvidia-smi for retrieving GPU information.
-3. Refactor baram_graphs.py to support the updated baram.py, implement live graphing to the CLI, and generate historical graphs using the log created by baram.py.
-4. Discuss the merits of creating a configuration helper script to assist users in identifying and configuring fan control settings, taking inspiration from existing fan control tools.
