@@ -9,6 +9,7 @@ import logging
 import configparser
 from pynvml import *
 
+
 # Parse command line arguments
 parser = argparse.ArgumentParser(description='Baram - Advanced System Cooling Management Tool')
 parser.add_argument('--min-temp', type=int, default=20, help='Minimum temperature threshold (default: 20)')
