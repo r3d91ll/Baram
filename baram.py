@@ -144,13 +144,14 @@ while True:
         if spike_count > args.wattage_spike_count:
             actual_min_pwm_value = args.wattage_pwm_value
             logging.debug(f"Wattage spike detected. Setting minimum PWM value to {actual_min_pwm_value}.")
-    else:
-        if spike_count > 0:
-            spike_count -= 1
-            if spike_count == 0:
-                actual_min_pwm_value = args.min_pwm_value
-                logging.debug(f"Wattage spike ended. Resetting minimum PWM value to {actual_min_pwm_value}.")
-
+        else:
+            if spike_count > 0:
+                spike_count -= 1
+                if spike_count == 0:
+                    actual_min_pwm_value = args.min_pwm_value
+                    logging.debug(f"Wattage spike ended. Resetting minimum PWM value to {actual_min_pwm_value}.")
+                    pwm_value = actual_min_pwm_value  # Reset PWM value to the minimum value
+                    
     # Temperature-based PWM adjustments
     if gpu_temp < args.min_temp:
         pwm_value = actual_min_pwm_value
