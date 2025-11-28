@@ -18,7 +18,7 @@ Baram is a specialized cooling management tool developed for NVIDIA datacenter G
 
 ## Inspiration
 
-The genesis of this tool was sparked by an incredible find on eBay—an NVIDIA P40 for $175. The challenge was cooling a datacenter GPU outside its native server environment. While hardware adaptations existed, an intuitive method to regulate fan speed based on GPU temperature and power consumption was missing.
+Why does this project exits? I found a cheap Nvidia P40 on ebay and all I had was an old AM4 gammer system to test it our on. So I threw it in the spare 8x slot and figured out a way to cool it while keeping teh noise at a reasonable level.
 
 The solution: Position the GPU's intake directly in front of the ATX case's intake fans, providing fresh air directly to the GPU rather than pre-warmed air from CPU cooling. This not only enhanced cooling efficiency but also significantly reduced noise levels.
 
