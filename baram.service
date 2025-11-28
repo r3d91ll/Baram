@@ -1,0 +1,28 @@
+[Unit]
+Description=Baram GPU Cooling Management Service
+Documentation=https://github.com/r3d91ll/Baram
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /opt/baram/baram.py --config /etc/baram/baram.conf
+Restart=on-failure
+RestartSec=5
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=baram
+
+# Security hardening
+NoNewPrivileges=no
+ProtectSystem=full
+ProtectHome=yes
+PrivateTmp=yes
+
+# Required capabilities for hwmon access
+AmbientCapabilities=CAP_DAC_OVERRIDE
+CapabilityBoundingSet=CAP_DAC_OVERRIDE
+
+[Install]
+WantedBy=multi-user.target
