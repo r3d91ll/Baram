@@ -15,7 +15,7 @@ StandardError=journal
 SyslogIdentifier=baram
 
 # Security hardening
-NoNewPrivileges=no
+NoNewPrivileges=yes
 ProtectSystem=full
 ProtectHome=yes
 PrivateTmp=yes

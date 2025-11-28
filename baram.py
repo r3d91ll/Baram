@@ -20,7 +20,7 @@ import sys
 import time
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional, List, Tuple
+from typing import ClassVar, Optional, List, Tuple
 
 try:
     import pynvml
@@ -62,7 +62,7 @@ class HwmonDetector:
         Returns:
             List of tuples: (hwmon_path, device_name, available_pwm_channels)
         """
-        devices = []
+        devices: List[Tuple[str, str, List[int]]] = []
 
         if not cls.HWMON_BASE.exists():
             return devices
@@ -124,10 +124,7 @@ class HwmonDetector:
                 return (hwmon_path, channels[0])
 
         # Fall back to first available device with PWM
-        if devices:
-            return (devices[0][0], devices[0][2][0])
-
-        return None
+        return (devices[0][0], devices[0][2][0])
 
 
 class FanController:
@@ -325,8 +322,8 @@ class Baram:
     """Main Baram cooling controller."""
 
     # Temperature thresholds and corresponding PWM ranges
-    TEMP_THRESHOLDS = [30, 40, 50, 60, 70]
-    PWM_RANGES = [(0, 0), (0, 30), (30, 60), (60, 90), (90, 120)]
+    TEMP_THRESHOLDS: ClassVar[List[int]] = [30, 40, 50, 60, 70]
+    PWM_RANGES: ClassVar[List[Tuple[int, int]]] = [(0, 0), (0, 30), (30, 60), (60, 90), (90, 120)]
 
     def __init__(self, config: Config):
         """
@@ -413,8 +410,8 @@ class Baram:
             return self.actual_min_pwm
 
         # Extended thresholds including max_temp
-        thresholds = self.TEMP_THRESHOLDS + [self.config.max_temp]
-        pwm_ranges = self.PWM_RANGES + [(120, self.config.max_pwm_value)]
+        thresholds = [*self.TEMP_THRESHOLDS, self.config.max_temp]
+        pwm_ranges = [*self.PWM_RANGES, (120, self.config.max_pwm_value)]
 
         # Find the appropriate range
         for i, threshold in enumerate(thresholds):
@@ -507,7 +504,7 @@ class Baram:
                 self._control_loop_iteration()
                 time.sleep(self.config.sleep_interval)
         except Exception as e:
-            logging.error(f"Unexpected error in control loop: {e}")
+            logging.exception(f"Unexpected error in control loop: {e}")
             return 1
         finally:
             self._cleanup()
@@ -517,6 +514,11 @@ class Baram:
 
     def _control_loop_iteration(self) -> None:
         """Execute one iteration of the control loop."""
+        # These should be initialized by start() before this is called
+        assert self.gpu_monitor is not None
+        assert self.fan_controller is not None
+        assert self.data_logger is not None
+
         # Read sensors
         gpu_temp = self.gpu_monitor.get_temperature()
         gpu_power = self.gpu_monitor.get_power()
